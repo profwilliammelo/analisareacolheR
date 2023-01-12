@@ -1,74 +1,417 @@
 ---
 title: "Tutorial de fim de curso 2022.2"
-output: learnr::tutorial
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
+gradethis::gradethis_setup()
 ```
 
+## Revisão de conceitos
 
-## Topic 1
+### Tipos de variáveis, confiabilidade e validade
 
-### Exercise 
-
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
-
-Write the R code required to add two plus two:
-
-```{r two-plus-two, exercise=TRUE}
-
-```
-
-### Exercise with Code
-
-*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
-
-Now write a function that adds any two numbers and then call it:
-
-```{r add-function, exercise=TRUE, exercise.lines = 5}
-add <- function() {
-  
-}
-```
-
-## Topic 2
-
-### Exercise with Hint
-
-*Here's an exercise where the chunk is pre-evaulated via the `exercise.eval` option (so the user can see the default output we'd like them to customize). We also add a "hint" to the correct solution via the chunk immediate below labeled `print-limit-hint`.*
-
-Modify the following code to limit the number of rows printed to 5:
-
-```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
-mtcars
-```
-
-```{r print-limit-hint}
-head(mtcars)
-```
-
-### Quiz
-
-*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
-
-Some questions to verify that you understand the purposes of various base and recommended R packages:
+Você será apresentado(a) a um conjunto de questões de múltipla escolha com resposta imediata. Isso possibilitará testar alguns conhecimentos e, principalmente, **revisar** conceitos.
 
 ```{r quiz}
-quiz(
-  question("Which package contains functions for installing other R packages?",
-    answer("base"),
-    answer("tools"),
-    answer("utils", correct = TRUE),
-    answer("codetools")
+quiz(caption = "Quiz de revisão de conceitos",
+  question("Qual dos conceitos estatísticos a seguir é um bom exemplo de indicador de confiabilidade?", submit_button = "Submeter resposta", loading = "Fazendo um café...", allow_retry = T, correct = "correta!", incorrect = "incorreta...", try_again_button = "Tente de novo",
+           
+    answer("viés", message = "viés é sinônimo de erro sistemático e não afeta a confiabilidade (que é sinonimo de consistencia da medida), tampouco é indicador de confiabilidade. Uma medida pode ser altamente confiável e pouco válida como o lado sorteado em moedas viciadas. Mas lembre: Se uma medida não é confiável, ela não é válida (pense numa balança que só marca pesos muito errados, mesmo que aleatoriamente)"),
+    answer("erro-amostral", correct = TRUE),
+    answer("média"),
+    answer("mediana")
   ),
-  question("Which of the R packages listed below are used to create plots?",
-    answer("lattice", correct = TRUE),
-    answer("tools"),
-    answer("stats"),
-    answer("grid", correct = TRUE)
+  
+  question("Qual dos conceitos estatísticos a seguir afeta a validade?", submit_button = "Submeter resposta", loading = "Fazendo um café...", allow_retry = T, correct = "correta!", incorrect = "incorreta...", try_again_button = "Tente de novo",
+           
+    answer("viés", correct = TRUE),
+    answer("erro-amostral"),
+    answer("média"),
+    answer("mediana")
+  ),
+  
+  question("Em termos de modelo de análise, qual é a variável que impacta e qual é a variável impactada, respectivamente?", submit_button = "Submeter resposta", loading = "Fazendo um café...", allow_retry = T, correct = "correta!", incorrect = "incorreta...", try_again_button = "Tente de novo",
+           
+    answer("variável independente e variável dependente", correct = TRUE),
+    answer("variável dependente e variável independente"),
+    answer("variável contínua e variável dependente", message = "Cuidado para não confundir diferentes tipos de classificação das variáveis, se tiver dúvida, veja [aqui](https://www.canva.com/design/DAFMfRo_8qo/bhWqcrlULWHQXhvZRwxCHQ/view?utm_content=DAFMfRo_8qo&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink#7)"),
+    answer("variável dependente e variável categórica nominal", message = "Cuidado para não confundir diferentes tipos de classificação das variáveis, se tiver dúvida, veja [aqui](https://www.canva.com/design/DAFMfRo_8qo/bhWqcrlULWHQXhvZRwxCHQ/view?utm_content=DAFMfRo_8qo&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink#7)")
   )
+  
 )
 ```
+
+## Treinamento de código e de análise em código 
+
+### Abraçando o banco de dados
+
+Agora nós vamos exercitar a programação. :)
+
+No exercício a seguir vamos usar o banco de dados do `R` chamado `cars`, que mostra a correlação entre velocidade e distância percorrida por carros. A primeira coisa é conhecer o banco de dados, certo? Vamos lá.
+
+Carregue o banco de dados `tidyverse` e olhe as 6 primeiras linhas da base `cars`.
+
+Lembre que você pode ir rodando o código aqui, você é livre. Mas quando achar que é o bloco de linhas final, clique em `solution`.
+
+*Dica: Não esqueça do `%>%` e a função para ver as primeiras linhas de uma base é a `head()`. Você pode definir quantas linhas quer ver com o argumento `n` dessa função.*
+
+```{r banco, exercise=TRUE}
+
+```
+
+```{r banco-solution}
+
+library(tidyverse)
+
+cars %>% head(n = 6)
+
+
+```
+
+O resultado precisa ser algo assim, exatamente como o output que você vê depois.
+
+```{r banco_resultado, warning=FALSE, message=FALSE, echo=TRUE}
+
+library(tidyverse)
+
+cars %>% head(n = 6)
+
+
+```
+
+Ok, agora vamos fazer algo mais interessante: renomear essas variáveis porque a gente usa inglês por obrigação, né? Não sou obrigado =/
+
+Então vamos lá! Lembrem que uma boa prática não é renomear e sim criar uma variável nova com o nome novo, porque qualquer problema que você tiver, você tem a variável original, intocável. Mas, se realmente não for um problema pra sua situação (como não seria para agora), a função para renomear é a `rename()`, do `tidyverse`. Aqui vamos usar a `mutate()`. Ela resolve vários outros problemas nossos. Eu começo e você termina, tá bom? Só preencher com o que falta no codigo e rodar.
+
+```{r banco_nomes, exercise=TRUE, exercise.blanks = "___+", warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars <- cars %>% mutate(velocidade = ___,
+                        distancia = ___)
+
+cars
+
+
+```
+
+```{r banco_nomes-solution}
+
+library(tidyverse)
+
+cars <- cars %>% mutate(velocidade = speed,
+                distancia = dist)
+
+cars
+```
+
+Qual a média de distância dos carros do banco? E o desvio-padrão?
+
+```{r media_distancia, echo=TRUE, warning=FALSE, message=FALSE}
+
+mean(cars$dist)
+sd(cars$dist)
+
+```
+
+Qual a média de velocidade dos carros do banco? E o desvio-padrão?
+
+```{r media_velocidade, echo=TRUE, warning=FALSE, message=FALSE}
+
+mean(cars$speed)
+sd(cars$speed)
+
+```
+
+Sabe porque foi possível realizar uma **medida de tendência central** (média) e outra de **dispersão** (desvio-padrão) para ambas as variáveis? Porque elas são numéricas. No caso, são duas *numéricas contínuas*. O que significa que...
+
+```{r quiz2}
+
+quiz(caption = " ",
+  question("quais são as melhores formas gráficas de descrevê-las?", submit_button = "Submeter resposta", loading = "Fazendo um café...", allow_retry = T, correct = "correta!", incorrect = "incorreta... QUALQUER DÚVIDA SOBRE ISSO (que é um tema importante), veja [aqui](https://www.canva.com/design/DAFMfRo_8qo/bhWqcrlULWHQXhvZRwxCHQ/view?utm_content=DAFMfRo_8qo&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink#12)", try_again_button = "Tente de novo",
+           
+    answer("gráfico de barras", message = "essa é a melhor forma de descrever variáveis categóricas ou numéricas discretas"),
+    answer("gráfico de colunas", message = "o gráfico de colunas é a mesma coisa que gráfico de barras, só que, em R, possui diferenças, porém ambos para variáveis categóricas"),
+    answer("histogramas, gráficos de densidade e box-plots", correct = TRUE),
+    answer("gráficos de pizza", message = "além de serem para variáveis categóricas, jamais devem ser utilizados, informam pouquíssimo o leitor")
+  ))
+
+```
+
+### "Gráficos, eu quero gráficos!"
+
+Agora você vai criar um box-plot da velocidade e da distância para verificar como se dispersam os dados, visualmente. Compare com os valores dos desvios-padrão e tente interpretar. Vou fazer o da velocidade e você faz o da distância, ok?
+
+
+```{r grafico1, exercise=TRUE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_boxplot()
+
+```
+
+
+Usando o anterior como modelo, faça o gráfico box-plot para a distância dos carros.
+
+```{r grafico2, exercise=TRUE}
+
+
+
+
+```
+
+Os gráficos então meio "nhee", concorda? Vamos dar vida a esse negócio. Como conversamos, o `ggplot` funciona em camadas, então temos a base para o box-plot pronta. Agora é "só" estilizar.
+Sempre fazemos isso com o `+` e **não** com o `%>%`. Esse último é só para conecar a base de dados com o início das camadas do ggplot. A partir do momento que você viu o primeiro `ggplot`, é só `+`. 
+
+Vamos colocar uma cor nessas caixas (boxes). Mas vamos fazer isso de uma forma diferente, agora.
+
+Você vai escrever o que falta na linha de código a seguir, atribuindo o argumento de cor dentro da função `geom_boxplot()`. Como deve entrar esse argumento? Que cores pode entrar? Bem, isso você vai precisar pesquisar =). Aqui você só precisa acertar a colocação do argumento e inserir uma cor de exemplo e vamos trabalhar com o azul, tá bem? É 'blue'. Ao terminar, só clicar no botão "Submit Answer".
+Pode clicar em `Solution` e confirmar a resposta. 
+
+```{r grafico3, message=FALSE, warning=FALSE, exercise=TRUE, eval=FALSE}
+
+sintaxe <- "cars %>% ggplot(aes(x = speed)) + geom_boxplot()"
+
+print(sintaxe)
+
+```
+
+```{r grafico3-check}
+grade_result(pass_if(
+  ~ identical(
+    .result,
+    "cars %>% ggplot(aes(x = speed)) + geom_boxplot(fill = 'blue')"
+  )
+))
+```
+
+```{r grafico3-solution}
+
+
+sintaxe <- "cars %>% ggplot(aes(x = speed)) + geom_boxplot(fill = 'blue')"
+
+print(sintaxe)
+
+
+```
+
+
+Agora você pode copiar e colar seu código, depois de correto, e colar a seguir pra ver o boxplot azul. Vá mudando as cores e vendo as mudanças =). Ah, o `ggplot` aceita cores por meio de [códigos hexadecimais](https://htmlcolorcodes.com/) também.
+
+```{r grafico4, message=FALSE, warning=FALSE, exercise=TRUE, eval=FALSE}
+
+
+```
+
+Ótimo, vamos criar um gráfico de densidade agora. Perceba que o box-plot te mostra a variação dos dados, onde estão os máximos, os mínimos e mais ou menos o quão deslocados para os máximos, para os mínimos e para a mediana estão os dados. Mas não te ajuda a saber o QUANTO isso está acontecendo. Para isso existe o gráfico de densidade de probabilidade, que é basicamente um histograma sem barras, com uma curva. O gráfico de densidade te permite saber como seus dados variam (assim como o box-plot) e também QUAL é a probabilidade de encontrar pessoas em determina faixa de valores contínuos. Por isso ele é recomendado para variáveis contínuas. É dele que vem a famosa **distribuição normal**, que é uma curva em forma de sino. Ela é um gráfico de densidade de probabilidade, com funções matemáticas conhecidas e muito útil para amostragem porque as médias de muitas amostras aleatórias repetidas formam uma distribuição normal, o que nos permite calcular intervalos de confiança, margens de erro, etc etc. Distribuição normal de quê? De probabilidades. Só isso? Só isso. 
+
+Vamos fazer um para a velocidade dos carros aqui? 
+
+Vou começar adicionando a camada principal e você coloca a camada geom_density()
+
+
+```{r grafico5, exercise=TRUE, exercise.blanks = "___+", warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) ____
+
+
+
+
+```
+
+```{r grafico5-solution}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_density()
+
+
+
+
+```
+
+
+Você pode mergulhar na estilização, quer ver? Adicione um preenchimento nisso aí (pode ir trocando de cores):
+
+
+```{r grafico6, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_density(fill = "darkblue")
+
+
+
+
+```
+
+Altere a transparência com `alpha`
+
+
+```{r grafico7, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_density(fill = "darkblue", alpha = 0.5)
+
+
+
+
+```
+
+Altere o eixo X com `xlab()` e o eixo Y com `ylab()`
+
+
+```{r grafico8, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_density(fill = "darkblue", alpha = 0.5) + xlab("velocidade") + ylab("Densidade de probabilidade")
+
+
+
+
+```
+
+Coloque títulos e assinaturas ao gráfico com `labs()`
+
+
+```{r grafico9, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+
+cars %>% ggplot(aes(x = speed)) + geom_density(fill = "darkblue", alpha = 0.5) + xlab("velocidade") + ylab("Densidade de probabilidade") + labs(title = "Distribuição de probabilidade da velocidade dos carros do banco cars do R", subtitle = "Aqui fica o subtítulo", caption = "Aqui você pode colocar sua assinatura, autoria ou o que mais quiser :D")
+
+
+
+
+```
+
+E tema? Tem tema?? OHHH SE TEM! O `ggplot` possui uma penca de temas, só puxar o `ggplot2::theme` que o resto aparece. Tem ainda o pacote `ggthemes`, com vários lindos temas. Ainda tem o `bbplot`, pra estilizar seus gráficos que nem os da BBC. CHIQUE! Eu gosto desse aqui: 
+
+
+```{r grafico10, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+library(ggthemes)
+
+cars %>% ggplot(aes(x = speed)) + geom_density(fill = "darkblue", alpha = 0.5) + xlab("velocidade") + ylab("Densidade de probabilidade") + labs(title = "Distribuição de probabilidade da velocidade 
+dos carros do banco cars do R", subtitle = "Aqui fica o subtítulo", caption = "Aqui você pode colocar sua assinatura, autoria ou o que mais quiser :D") + theme_base(base_size = 11)
+
+
+
+
+```
+
+
+E se eu te disser que dá pra juntar box-plot e gráfico de densidade em uma coisa só? Te apresento agora o `raincloundplot`, um dos gráficos mais bonitos que eu já vi na vida e super moderno. Ele te permite ver, com detalhes, a distribuição de uma variável numérica, ainda mais se ela é contínua. Sabe porque é `raindcloud`? Porque ele lembra uma nuvem pingando chuva, quer ver? hehe
+
+Primeiro você precisa do pacote `ggdist`. O resto você já tem. 
+
+```{r grafico11, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+library(ggdist)
+library(ggthemes)
+
+cars %>% ggplot(aes(x = speed)) + 
+ stat_halfeye(
+    adjust = 0.5,
+    justification = -0.2,
+    .width = 0,
+    point_colour = NA,
+    fill = "black",
+    alpha = 0.8
+  ) +
+  geom_boxplot(
+    width = 0.12,
+    outlier.color = NA,
+    alpha = 0.5,
+    fill = "gray"
+  ) +
+  stat_dots(
+    side = "left",
+    justification = 1.1,
+    binwidth = 0.3,
+    col = "darkblue") +
+   xlab("velocidade") + ylab("Densidade de probabilidade") + labs(title = "Distribuição de probabilidade da velocidade dos carros 
+do banco cars do R", subtitle = "Aqui fica o subtítulo", caption = "Aqui você pode colocar sua assinatura, autoria ou o que mais quiser :D") + theme_base(base_size = 11)  
+
+
+
+
+```
+
+
+Pra terminar, vamos fazer um gráfico de dispersão que correlacione velocidade e distância dos carros?
+Você vai fazer tudo, agora. Chamar o banco de dados, acrescentar as camadas do `ggplot`. Se é gráfico de dispersão, precisa ter X (velocidade) e Y (distância). Isso você já vai definir na parte estética do gráfico `aes(x = ..., y = ...)`. Se é dispersão, tem que ter pontos... então... camada de pontos: `geom_point()`. Pronto, já falei demais! 
+
+Se tiver dúvida, use o botão `hint`, do lado de uma lampadazinha, Preparei mais dicas pra você.
+
+A solução está na próxima página, já estilizadinha e até interativa, com cálculo da `correlação de Pearson`pra você.
+
+```{r grafico12, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+
+
+```
+
+
+```{r grafico12-hint}
+
+library(tidyverse)
+library(ggthemes)
+
+cars %>% ggplot(aes(x = speed, y= dist)) + ... # Agora é contigo
+ 
+
+```
+
+
+### Solução do último exercício
+
+Aqui você pode ver o gráfico com a correlação de Pearson, útil para verificar o grau de associação LINEAR entre duas variáveis numéricas contínuas.  Repara que eu primeiro criei um objeto calculando a correlação de Pearson, com a função `cor()`. Depois, como o objeto produz um número (classe `numeric`), eu só inseri no gráfico como anotação, com a camada `annotate()`. `geom = "label"`, dentro de `annotate` diz assim: "ó, aqui vai entrar um rótulo, alguma coisa escrita, que vai estar no argumento de rótulo, que é o label". Daí no `label`, só acrescentar o que você quiser anotar. No caso, inseri uma concatenação entre o objeto `pearson` e um texto, com a função `paste()`. Arredondei o coeficiente nos 3 decimais com `round()`.  
+
+```{r grafico13, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+library(ggthemes)
+
+pearson <- cor(cars$speed, cars$dist)
+
+grafico <- cars %>% ggplot(aes(x = speed, y= dist)) + geom_point(col = "red") + geom_smooth(fill = "blue", method = "lm") +
+  annotate(geom = "label", label = paste("Correlação de Pearson =", round(pearson, 3)), x = 20, y = 100) +
+  xlab("velocidade") + ylab("distância") + theme_base(base_size = 11)
+
+grafico
+ 
+
+```
+
+Aqui você o mesmo gráfico de forma INTERATIVA, com o pacote `plotly`. Só passar o objeto do gráfico dentro da função `ggplotly`, do pacote mencionado. Se der algum bug nesta parte, copie e cole o codigo no R, com os pacotes instalados, que deve funcionar.    
+
+```{r grafico14, exercise=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+
+library(tidyverse)
+library(plotly)
+
+
+grafico <- cars %>% ggplot(aes(x = speed, y= dist)) + geom_point(col = "red") + geom_smooth(fill = "blue", method = "lm") + xlab("velocidade") + ylab("distância")
+
+ggplotly(grafico)
+ 
+
+```
+
+
+PRONTINHO! Você terminou este tutorial! Continue exercitando! 
